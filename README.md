@@ -1,164 +1,92 @@
-RC Telemetry Master Controller (M5AtomS3 Lite)
+You can copy/paste this Markdown directly.
 
-Version: v0.19.2-BetaRC
+🏎️ RC-VOLT: Telemetry Master Controller
 
-Device: M5Stack AtomS3 Lite
+Version: v0.19.2-BetaRC | Device: M5Stack AtomS3 Lite
 
-This firmware transforms an M5Stack AtomS3 Lite into a high-performance telemetry logger and master controller for RC vehicles. It aggregates data from external sensors (GPS, IMU), reads RC PWM signals, manages audio synthesis, and hosts a real-time web dashboard for visualization and configuration.
+    ⚠️ AI Disclosure: This firmware was architected by a human and implemented with AI assistance. The logic is pure driver intuition; the syntax is machine-generated. Bugs are possible, drift is guaranteed.
+
+📖 Overview
+
+This firmware transforms an M5Stack AtomS3 Lite into a high-performance telemetry logger and master controller for RC vehicles. Unlike standard loggers, RC-VOLT includes a physics engine to estimate drift angles and detect jumps, plus a battery simulator that tracks voltage sag and consumption in real-time.
 
 🚀 Key Features
 
-Real-Time Web Dashboard: Hosted directly on the ESP32 (WiFi Access Point). View speed, G-forces, battery status, and configure settings.
+    Real-Time Web Dashboard: Host a racing dashboard directly on the ESP32 (Works on any phone/browser).
 
-High-Speed Logging: Records telemetry at 10Hz+ to internal storage.
+    Physics Engine: Estimates Drift Angle, detects Airtime/Jumps, and tracks Traction Loss.
 
-Supports efficient Binary format or standard CSV.
+    Smart Power: Accurate power consumption tracking with voltage sag simulation and motor profiling.
 
-Smart Sync: Auto-converts binary logs to CSV upon download.
+    High-Speed Logging: 10Hz+ Binary logging (auto-converts to CSV on download).
 
-GPS Quality Validation: Tracks HDOP and Satellite count to validate speed runs.
+    GPS Validation: Automatically flags speed runs with low satellite count or high HDOP.
 
-Physics Engine: Estimates drift angle, detects jumps (airtime), and tracks traction loss.
+    Crash Recovery: Emergency storage management automatically creates space if the disk fills up during a run.
 
-Battery Simulation: accurate power consumption tracking based on motor profiles (Brushless/Brushed) and voltage sag simulation. Includes a calibration mode.
-
-Robust Communication:
-
-Async I2C with CRC validation for sensor data.
-
-LoRa Telemetry support (for long-range ground station).
-
-Crash Recovery: Emergency storage management and corrupted log recovery tools.
-
-🛠️ Hardware Requirements
+🛠️ Hardware & Pinout
 
 Master Controller: M5Stack AtomS3 Lite
+Interface	Pin	Function
+I2C SDA	G2	Sensor Bus Data (GPS/IMU)
+I2C SCL	G1	Sensor Bus Clock
+PWM In	G5	RC Receiver Throttle
+PWM In	G6	RC Receiver Steering
+LED	G35	Status Indication
 
-Secondary Sensor Unit (I2C Address 0x55): Handles GPS & IMU raw data fusion.
+Peripheral Units (I2C):
 
-Audio Unit (I2C Address 0x56): (Optional) Generates engine sounds based on RPM/Throttle.
+    0x55: Secondary Sensor Unit (GPS + IMU Fusion)
 
-LoRa Unit (I2C Address 0x57): (Optional) For long-range telemetry.
+    0x56: Audio Unit (Engine Sound Synthesis)
 
-Pinout Configuration
+    0x57: LoRa Unit (Long-Range Ground Station)
 
-Interface
+⚡ Quick Start
 
-AtomS3 Pin
+    Flash: Compile using PlatformIO or Arduino IDE.
 
-Function
+        Dependencies: M5Unified, Adafruit NeoPixel, AsyncTCP, ESPAsyncWebServer, ArduinoJson (v7.x).
 
-I2C SDA
+        Partition Scheme: Large APP (No OTA) (Requires 2MB APP / 2MB FS).
 
-G2
+    Wire: Connect your RC Receiver PWM pins to G5/G6 and your sensors to the I2C bus.
 
-Sensor Bus Data
+    Connect:
 
-I2C SCL
+        SSID: RC-Telemetry-V0-19-Beta
 
-G1
+        Pass: telemetry123
 
-Sensor Bus Clock
+        URL: http://192.168.4.1
 
-PWM In
+🎮 Controls & Status
 
-G5
+Button A (Atom Lite Button):
 
-RC Receiver Throttle Channel
+    Single Click: Start / Stop Logging.
 
-PWM In
+    Hold (1s): Zero IMU (Level Calibration).
 
-G6
+LED Status:
 
-RC Receiver Steering Channel
+    🟢 Solid Green: Ready (On-Road Mode)
 
-LED
+    🟠 Solid Orange: Ready (Off-Road Mode)
 
-G35
+    🔴 Solid Red: LOGGING ACTIVE
 
-Status RGB LED
+    🟣 Blinking Magenta: GPS Fix Poor (High HDOP)
 
-📦 Software Dependencies
+    🟠 Blinking Orange: RC Signal Lost (Failsafe)
 
-Compile using Arduino IDE or PlatformIO. Ensure the following libraries are installed:
+🤝 Contributing
 
-M5Unified & M5GFX
+This project is "Vibe Coded," meaning we move fast and break things.
 
-Adafruit NeoPixel
+    Found a bug? Open an issue with your log file.
 
-AsyncTCP
+    Want to add a feature? PRs are welcome, especially for new vehicle physics profiles.
 
-ESPAsyncWebServer
+License: Educational & Hobbyist Use.
 
-ArduinoJson (v7.x)
-
-Note: This firmware uses LittleFS for storage. Select a partition scheme with sufficient SPIFFS/LittleFS space (e.g., "No OTA (Large APP), 2MB APP/2MB FS" or similar).
-
-⚡ Installation
-
-Connect Hardware: Wire the Grove I2C sensors and connect RC receiver PWM pins to G5/G6.
-
-Configure IDE: Select board M5Stack AtomS3.
-
-Compile & Upload: Flash the M5AtomS3_Master.ino to the device.
-
-First Boot:
-
-The LED will blink Orange (waiting for sensors) or Green (Ready).
-
-If LittleFS is unformatted, the system will format it automatically (LED may stay red/orange for a few seconds).
-
-🖥️ Usage
-
-1. Connecting to Dashboard
-
-The device creates a WiFi Access Point on boot:
-
-SSID: RC-Telemetry-V0-19-Beta
-
-Password: telemetry123
-
-URL: http://192.168.4.1
-
-2. Controls
-
-Button A (Single Click): Start / Stop Logging.
-
-Button A (Hold 1s): Zero IMU (Calibrate level).
-
-3. LED Status Codes
-
-🟢 Solid Green: System Ready (On-Road Mode).
-
-🟠 Solid Orange: System Ready (Off-Road Mode).
-
-🔴 Solid Red: Logging Active.
-
-🟣 Blinking Magenta: GPS Fix acquired but accuracy is poor (High HDOP).
-
-🟠 Blinking Orange: RC Signal Lost (Throttle/Steering disconnected).
-
-🔴 Blinking Red: I2C Sensor Error.
-
-4. Calibration
-
-Steering: Open the Web Dashboard settings to run the Steering Calibration wizard (Left -> Center -> Right).
-
-Battery: 1. Fully charge battery.
-2. Start "Calibration Mode" in Dashboard.
-3. Run car until empty.
-4. Charge battery and input the "mAh charged" into the Dashboard to calculate the efficiency factor.
-
-📂 Log Management
-
-Logs are saved to internal flash memory.
-
-Access logs via the Storage tab in the Web Dashboard.
-
-Clicking a .bin file will automatically convert it to .csv and download it.
-
-Emergency Cleanup: If storage drops below 100KB, the oldest logs are automatically deleted to preserve the current session.
-
-📝 License
-
-This project is released for educational and hobbyist use.
