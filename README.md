@@ -1,72 +1,164 @@
-# RemoteControl-VOLT
-A real-time (RTOS) telemetry and data logging system for RC cars. Based on M5Atom/ESP32 Hardware
-# RC-VOLT (Vehicle Operations & Live Telemetry)
-> A real-time (RTOS) telemetry firmware for the M5Stack ecosystem, designed for high-performance RC vehicles.
+RC Telemetry Master Controller (M5AtomS3 Lite)
 
-## ⚠️ Project Status: In-Progress
-This is a **work-in-progress** and is currently in the **proof-of-concept validation phase**. It is being tested with a small group of friends before any public release. The code is provided AS-IS, is not production-ready, and has no warranty.
+Version: v0.19.2-BetaRC
 
----
+Device: M5Stack AtomS3 Lite
 
-## Software Philosophy
-This project was born from a preventable failure: losing a race to an ebike after the RC car's 3S LiPo battery died unexpectedly at 10% charge. The root cause was a complete lack of data. **RC-VOLT is the software-first solution to that problem.**
+This firmware transforms an M5Stack AtomS3 Lite into a high-performance telemetry logger and master controller for RC vehicles. It aggregates data from external sensors (GPS, IMU), reads RC PWM signals, manages audio synthesis, and hosts a real-time web dashboard for visualization and configuration.
 
-The goal is to create a lightweight, modular, and real-time (RTOS) firmware that provides a comprehensive data acquisition and logging suite for any high-performance RC vehicle.
+🚀 Key Features
 
-## Why the M5Stack Atom Ecosystem?
-The hardware choice was driven by critical software and performance requirements.
+Real-Time Web Dashboard: Hosted directly on the ESP32 (WiFi Access Point). View speed, G-forces, battery status, and configure settings.
 
-1.  **Mass Reduction:** The previous, discrete ESP32-C3 system was 80-130g. The M5Stack-based architecture is only **33-48g** (a 40-65% weight reduction). In RC, weight is a primary performance killer.
-2.  **Integration & Reliability:** The **Atom S3 OLED** integrates the ESP32-S3 and display into a single 8-10g package. This eliminates a major source of wiring failure, I2C bus complexity, and vibration-related issues.
-3.  **Distributed Architecture:** The platform's small size and low weight make a multi-unit RTOS architecture feasible, allowing for dedicated microcontrollers for dedicated tasks.
-4.  **Expandability:** The Grove connector ecosystem provides a simple, standardized interface for adding future sensors without a rat's nest of wires.
+High-Speed Logging: Records telemetry at 10Hz+ to internal storage.
 
-## Current Software Features
-The system currently runs a dual-unit RTOS architecture:
+Supports efficient Binary format or standard CSV.
 
-* **Primary Unit (M5Stack Atom S3 OLED):**
-    * Manages the I2C bus.
-    * Polls the **GPS Module** (10Hz parsing).
-    * Polls the **MPU6050 IMU** (20Hz sensor sampling).
-    * Runs the local OLED display.
-    * Serves the WebSocket dashboard.
+Smart Sync: Auto-converts binary logs to CSV upon download.
 
-* **Secondary Unit (M5Stack Atom S3R):**
-    * Acts as a dedicated RC input processor.
-    * Captures high-resolution throttle and steering PWM signals.
+GPS Quality Validation: Tracks HDOP and Satellite count to validate speed runs.
 
-**Core System Features:**
-* **"Vibe Coding" Protocol:** A custom, lightweight wireless protocol that synchronizes data between the primary and secondary units in real-time.
-* **Live Web Dashboard:** Pushes all sensor data (GPS, IMU, RC Inputs) over WebSocket (5Hz) to any connected browser.
-* **Data Logging:** Session-based logging with auto-start (on throttle input) and auto-stop (after 20 seconds of inactivity).
-* **CSV Data Export:** Provides a simple way to download a complete, timestamped log of your run for post-session analysis.
+Physics Engine: Estimates drift angle, detects jumps (airtime), and tracks traction loss.
 
-## Future Software Roadmap
-The current system is a stable proof-of-concept. The next development phase is focused on expanding data integration and telemetry range.
+Battery Simulation: accurate power consumption tracking based on motor profiles (Brushless/Brushed) and voltage sag simulation. Includes a calibration mode.
 
-* **Full Powertrain Integration (Priority 1):**
-    * Implement high-accuracy **battery voltage and current monitoring** (e.g., INA219/INA226 sensor). This is the key to solving the project's original "10% battery failure" problem.
-    * Integrate with ESC bidirectional telemetry (e.g., Hobbywing) to get live RPM, FET temp, and ESC-reported current.
+Robust Communication:
 
-* **Long-Range Telemetry (LoRa):**
-    * Integrate LoRa radio modules (e.g., RA-02, EByte) for a robust, long-range telemetry link.
-    * Develop a packetized data protocol to transmit key metrics (Speed, Voltage, Current, GPS) from the car to a separate base station or handheld device.
+Async I2C with CRC validation for sensor data.
 
-* **Predictive Analysis:**
-    * Use the new voltage/current data to add real-time power (Watt) calculations to the dashboard.
-    * Develop a predictive runtime algorithm ("Time to 10% battery").
+LoRa Telemetry support (for long-range ground station).
 
-## The Testbed
-This firmware is being developed and validated on an exceptionally-engineered 1:7.4 scale, 3D-printed AWD rally car. While RC-VOLT is a standalone software project, you can find the incredible vehicle platform it runs on here:
+Crash Recovery: Emergency storage management and corrupted log recovery tools.
 
-* **[IMPR3ZA: Tribute/Replica to Subaru Impreza 22B](https://cults3d.com/en/3d-model/game/impr3za-tribute-replica-to-subaru-impreza-22b-full-3d-printed-kit)**
+🛠️ Hardware Requirements
 
-## License
-This project is licensed under the MIT License. See the `LICENSE` file for more information.
+Master Controller: M5Stack AtomS3 Lite
 
-**Copyright (c) 2025 Ian-cmd-ops**
+Secondary Sensor Unit (I2C Address 0x55): Handles GPS & IMU raw data fusion.
 
-## Development & Acknowledgments
-The core concept, project architecture, failure analysis, problem-solving, and troubleshooting for RC-VOLT were developed by the project author.
+Audio Unit (I2C Address 0x56): (Optional) Generates engine sounds based on RPM/Throttle.
 
-In the spirit of transparency, portions of the boilerplate code and specific functions were generated with the assistance of AI pair-programming tools, including Google's Gemini and Anthropic's Claude.
+LoRa Unit (I2C Address 0x57): (Optional) For long-range telemetry.
+
+Pinout Configuration
+
+Interface
+
+AtomS3 Pin
+
+Function
+
+I2C SDA
+
+G2
+
+Sensor Bus Data
+
+I2C SCL
+
+G1
+
+Sensor Bus Clock
+
+PWM In
+
+G5
+
+RC Receiver Throttle Channel
+
+PWM In
+
+G6
+
+RC Receiver Steering Channel
+
+LED
+
+G35
+
+Status RGB LED
+
+📦 Software Dependencies
+
+Compile using Arduino IDE or PlatformIO. Ensure the following libraries are installed:
+
+M5Unified & M5GFX
+
+Adafruit NeoPixel
+
+AsyncTCP
+
+ESPAsyncWebServer
+
+ArduinoJson (v7.x)
+
+Note: This firmware uses LittleFS for storage. Select a partition scheme with sufficient SPIFFS/LittleFS space (e.g., "No OTA (Large APP), 2MB APP/2MB FS" or similar).
+
+⚡ Installation
+
+Connect Hardware: Wire the Grove I2C sensors and connect RC receiver PWM pins to G5/G6.
+
+Configure IDE: Select board M5Stack AtomS3.
+
+Compile & Upload: Flash the M5AtomS3_Master.ino to the device.
+
+First Boot:
+
+The LED will blink Orange (waiting for sensors) or Green (Ready).
+
+If LittleFS is unformatted, the system will format it automatically (LED may stay red/orange for a few seconds).
+
+🖥️ Usage
+
+1. Connecting to Dashboard
+
+The device creates a WiFi Access Point on boot:
+
+SSID: RC-Telemetry-V0-19-Beta
+
+Password: telemetry123
+
+URL: http://192.168.4.1
+
+2. Controls
+
+Button A (Single Click): Start / Stop Logging.
+
+Button A (Hold 1s): Zero IMU (Calibrate level).
+
+3. LED Status Codes
+
+🟢 Solid Green: System Ready (On-Road Mode).
+
+🟠 Solid Orange: System Ready (Off-Road Mode).
+
+🔴 Solid Red: Logging Active.
+
+🟣 Blinking Magenta: GPS Fix acquired but accuracy is poor (High HDOP).
+
+🟠 Blinking Orange: RC Signal Lost (Throttle/Steering disconnected).
+
+🔴 Blinking Red: I2C Sensor Error.
+
+4. Calibration
+
+Steering: Open the Web Dashboard settings to run the Steering Calibration wizard (Left -> Center -> Right).
+
+Battery: 1. Fully charge battery.
+2. Start "Calibration Mode" in Dashboard.
+3. Run car until empty.
+4. Charge battery and input the "mAh charged" into the Dashboard to calculate the efficiency factor.
+
+📂 Log Management
+
+Logs are saved to internal flash memory.
+
+Access logs via the Storage tab in the Web Dashboard.
+
+Clicking a .bin file will automatically convert it to .csv and download it.
+
+Emergency Cleanup: If storage drops below 100KB, the oldest logs are automatically deleted to preserve the current session.
+
+📝 License
+
+This project is released for educational and hobbyist use.
