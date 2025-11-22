@@ -28,12 +28,12 @@ Host a racing dashboard directly from the RC car via WiFi.
 
 ## 🛠️ Hardware Architecture
 
-The system uses a Master/Slave architecture over I2C to distribute processing load.
+The system uses two M5Atom communicating over I2C to distribute processing load.
 
 | Unit | Device | Function |
 | :--- | :--- | :--- |
-| **Primary (Master)** | **M5Stack AtomS3 Lite** | WiFi Host, Physics Engine, Logger, RC PWM Input |
-| **Secondary (Slave)** | **M5Stack AtomS3** | GPS NMEA Parsing, IMU Sensor Fusion (MPU6886) |
+| **Primary** | **M5Stack AtomS3 Lite** | WiFi Host, Physics Engine, Logger, RC PWM Input |
+| **Secondary** | **M5Stack AtomS3** | GPS NMEA Parsing, IMU Sensor Fusion (MPU6886) |
 | **Audio (Optional)** | **M5Stack Atom Echo** | Engine Sound Synthesis (RPM/Turbo sounds) |
 
 ### Wiring & Pinout
@@ -97,3 +97,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 *Keywords: ESP32 RC Telemetry, M5Stack AtomS3, Arduino GPS Logger, RC Drift Gyro, Open Source RC, Data Logging, PlatformIO, ESP32-S3, Vehicle Dynamics*
+
