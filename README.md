@@ -1,92 +1,99 @@
+# 🏎️ RC-VOLT: Advanced RC Telemetry & Physics Engine
 
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Platform](https://img.shields.io/badge/platform-ESP32%20%7C%20M5Stack-orange.svg)
+![Status](https://img.shields.io/badge/status-Beta%20v0.19.2-green.svg)
 
-🏎️ RC-VOLT: Telemetry Master Controller
+**RC-VOLT** is a professional-grade telemetry and data logging system for Radio Control vehicles, running on the **ESP32-S3 (M5Stack AtomS3)** platform.
 
-Version: v0.19.2-BetaRC | Device: M5Stack AtomS3 Lite
+Unlike standard GPS loggers, RC-VOLT features a **real-time physics engine** that calculates drift angles, detects jumps, estimates tire traction, and simulates battery voltage sag using motor impedance modeling.
 
-    ⚠️ AI Disclosure: This firmware was architected by a human and implemented with AI assistance. The logic is pure driver intuition; the syntax is machine-generated. Bugs are possible, drift is guaranteed.
+## 🚀 Key Features
 
-📖 Overview
+### 📊 Real-Time Web Dashboard
+Host a racing dashboard directly from the RC car via WiFi.
+* **Live Gauges:** Speed, G-Force, Throttle/Steering input, and Battery %.
+* **WebSocket Technology:** Ultra-low latency updates (~10Hz).
+* **Universal:** Works on any smartphone, tablet, or laptop browser.
 
-This firmware transforms an M5Stack AtomS3 Lite into a high-performance telemetry logger and master controller for RC vehicles. Unlike standard loggers, RC-VOLT includes a physics engine to estimate drift angles and detect jumps, plus a battery simulator that tracks voltage sag and consumption in real-time.
+### 🧮 On-Board Physics Engine
+* **Drift Analysis:** Uses IMU fusion to calculate slip angles and yaw rates.
+* **Jump Detection:** Identifies airtime using accelerometer free-fall detection.
+* **Battery Simulator:** Estimates voltage sag and remaining capacity based on motor current draw profiling (Brushed/Brushless) and calibration factors.
 
-🚀 Key Features
+### 🛰️ Precision Data Logging
+* **Dual Formats:** Records to optimized **Binary** (for speed) or standard **CSV** (for Excel/Overlay).
+* **GPS Validation:** Automatically flags speed runs with "Valid" or "Invalid" based on satellite count and HDOP accuracy.
+* **Smart Storage:** Auto-rotates logs and manages flash storage to prevent corruption.
 
-    Real-Time Web Dashboard: Host a racing dashboard directly on the ESP32 (Works on any phone/browser).
+## 🛠️ Hardware Architecture
 
-    Physics Engine: Estimates Drift Angle, detects Airtime/Jumps, and tracks Traction Loss.
+The system uses a Master/Slave architecture over I2C to distribute processing load.
 
-    Smart Power: Accurate power consumption tracking with voltage sag simulation and motor profiling.
+| Unit | Device | Function |
+| :--- | :--- | :--- |
+| **Primary (Master)** | **M5Stack AtomS3 Lite** | WiFi Host, Physics Engine, Logger, RC PWM Input |
+| **Secondary (Slave)** | **M5Stack AtomS3** | GPS NMEA Parsing, IMU Sensor Fusion (MPU6886) |
+| **Audio (Optional)** | **M5Stack Atom Echo** | Engine Sound Synthesis (RPM/Turbo sounds) |
 
-    High-Speed Logging: 10Hz+ Binary logging (auto-converts to CSV on download).
+### Wiring & Pinout
+* **I2C Bus:** Pins `G2` (SDA) / `G1` (SCL)
+* **RC Throttle:** Pin `G5` (Connect to Receiver CH2)
+* **RC Steering:** Pin `G6` (Connect to Receiver CH1)
+* **Status LED:** Pin `G35` (Built-in WS2812)
 
-    GPS Validation: Automatically flags speed runs with low satellite count or high HDOP.
+## 📦 Installation & Setup
 
-    Crash Recovery: Emergency storage management automatically creates space if the disk fills up during a run.
+### 1. Firmware Flashing
+This project is built using **PlatformIO**.
+1.  Clone this repository.
+2.  Open in VS Code with the PlatformIO extension.
+3.  **Important:** Ensure your partition scheme is set to `Large APP (No OTA)` to allow 2MB for the filesystem.
+4.  Flash `Master` firmware to the Primary Unit and `Secondary` firmware to the Sensor Unit.
 
-🛠️ Hardware & Pinout
+**Dependencies:** `M5Unified`, `Adafruit NeoPixel`, `AsyncTCP`, `ESPAsyncWebServer`, `ArduinoJson (v7.x)`.
 
-Master Controller: M5Stack AtomS3 Lite
-Interface	Pin	Function
-I2C SDA	G2	Sensor Bus Data (GPS/IMU)
-I2C SCL	G1	Sensor Bus Clock
-PWM In	G5	RC Receiver Throttle
-PWM In	G6	RC Receiver Steering
-LED	G35	Status Indication
+### 2. Configuration
+Connect to the WiFi Access Point:
+* **SSID:** `RC-Telemetry-V0-19-Beta`
+* **Pass:** `telemetry123`
+* **Dashboard:** Navigate to `http://192.168.4.1`
 
-Peripheral Units (I2C):
+### 3. Calibration
+* **Steering:** Use the web dashboard to map your RC transmitter's PWM endpoints.
+* **IMU:** Ensure vehicle is level and hold **Button A** for 1 second to Zero the IMU.
+* **Battery:** Use the "Battery Config" tab to set your LiPo cells (2S-6S) and capacity.
 
-    0x55: Secondary Sensor Unit (GPS + IMU Fusion)
+## 🎮 Controls & Status
 
-    0x56: Audio Unit (Engine Sound Synthesis)
+### Button A (Atom Lite)
+* **Single Click:** Start / Stop Logging.
+* **Hold (1s):** Zero IMU (Level Calibration).
 
-    0x57: LoRa Unit (Long-Range Ground Station)
+### LED Status Codes
+| Color | Pattern | Status | Meaning |
+| :--- | :--- | :--- | :--- |
+| 🟢 **Green** | Solid | **Ready** | On-Road Mode (Nominal). |
+| 🟠 **Orange** | Solid | **Ready** | Off-Road Mode (Nominal). |
+| 🔴 **Red** | Solid | **Logging** | Data recording is active. |
+| 🟣 **Purple** | Blinking | **RC Error** | No Receiver Signal (Failsafe). |
+| 🟠 **Orange** | Blinking | **I2C Error** | Secondary Unit disconnected. |
+| 🟣 **Magenta** | Blinking | **GPS Poor** | High HDOP / Low Satellite count. |
 
-⚡ Quick Start
+## 📂 Documentation
+For detailed technical guides, refer to the `docs/` folder:
+* [**Primary Unit Guide**](./docs/PRIMARY_README.md) - Master controller architecture.
+* [**Secondary Unit Guide**](./docs/SECONDARY_README.md) - GPS & IMU fusion details.
+* [**Troubleshooting**](./docs/TROUBLESHOOTING.md) - Full error code reference.
+* [**Release Notes**](./RC_VOLT_0.19.1_RELEASE_NOTES.md) - Version history.
 
-    Flash: Compile using PlatformIO or Arduino IDE.
+## 🤝 Contributing
+This project is "Vibe Coded" — we move fast and break things.
+* Found a bug? Open an [Issue](https://github.com/Ian-cmd-ops/RemoteControl-VOLT/issues) with your log file.
+* Want to add a physics profile? Submit a Pull Request.
 
-        Dependencies: M5Unified, Adafruit NeoPixel, AsyncTCP, ESPAsyncWebServer, ArduinoJson (v7.x).
+## 📄 License
+Distributed under the MIT License. See `LICENSE` for more information.
 
-        Partition Scheme: Large APP (No OTA) (Requires 2MB APP / 2MB FS).
-
-    Wire: Connect your RC Receiver PWM pins to G5/G6 and your sensors to the I2C bus.
-
-    Connect:
-
-        SSID: RC-Telemetry-V0-19-Beta
-
-        Pass: telemetry123
-
-        URL: http://192.168.4.1
-
-🎮 Controls & Status
-
-Button A (Atom Lite Button):
-
-    Single Click: Start / Stop Logging.
-
-    Hold (1s): Zero IMU (Level Calibration).
-
-LED Status:
-
-    🟢 Solid Green: Ready (On-Road Mode)
-
-    🟠 Solid Orange: Ready (Off-Road Mode)
-
-    🔴 Solid Red: LOGGING ACTIVE
-
-    🟣 Blinking Magenta: GPS Fix Poor (High HDOP)
-
-    🟠 Blinking Orange: RC Signal Lost (Failsafe)
-
-🤝 Contributing
-
-This project is "Vibe Coded," meaning we move fast and break things.
-
-    Found a bug? Open an issue with your log file.
-
-    Want to add a feature? PRs are welcome, especially for new vehicle physics profiles.
-
-License: Educational & Hobbyist Use.
-
+---
+*Keywords: ESP32 RC Telemetry, M5Stack AtomS3, Arduino GPS Logger, RC Drift Gyro, Open Source RC, Data Logging, PlatformIO, ESP32-S3, Vehicle Dynamics*
