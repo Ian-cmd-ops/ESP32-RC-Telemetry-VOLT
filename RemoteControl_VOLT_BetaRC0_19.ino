@@ -30,10 +30,10 @@
 // =================================================================
 // STORAGE & LOGGING CONFIGURATION (OPTIMIZED)
 // =================================================================
-#define MAX_LOG_FILES 20              
-#define MAX_FILE_SIZE_BYTES 450000    
-#define LOG_FORMAT_BINARY true        
-#define LOG_SAMPLE_RATE_HZ 10         
+#define MAX_LOG_FILES 20               
+#define MAX_FILE_SIZE_BYTES 450000     
+#define LOG_FORMAT_BINARY true         
+#define LOG_SAMPLE_RATE_HZ 10          
 #define MIN_FREE_STORAGE_BYTES 100000  // NEW: Emergency threshold
 
 // =================================================================
@@ -169,21 +169,21 @@ uint8_t crc8(const uint8_t *data, size_t len) {
 // =================================================================
 
 struct LogRecord {
-  uint32_t timestamp;           
-  float speed;                  
-  float lat;                    
-  float lon;                    
-  int16_t gforce_total_x100;    
-  int16_t gforce_lat_x100;      
-  int16_t gforce_lon_x100;      
-  int16_t yaw_x10;              
-  uint8_t sats;                 
-  uint8_t hdop_x10;             
-  uint8_t flags;                
-  int16_t temp_c_x10;           
-  uint16_t volts_x100;          
-  uint16_t mah_used;            
-} __attribute__((packed));      
+  uint32_t timestamp;            
+  float speed;                    
+  float lat;                      
+  float lon;                      
+  int16_t gforce_total_x100;      
+  int16_t gforce_lat_x100;        
+  int16_t gforce_lon_x100;        
+  int16_t yaw_x10;                
+  uint8_t sats;                   
+  uint8_t hdop_x10;              
+  uint8_t flags;                  
+  int16_t temp_c_x10;            
+  uint16_t volts_x100;            
+  uint16_t mah_used;              
+} __attribute__((packed));        
 
 inline int16_t floatToInt16x100(float val) { 
   return (int16_t)(constrain(val * 100.0f, -32767, 32767)); 
@@ -208,20 +208,20 @@ inline uint8_t floatToUInt8x10(float val) {
 
 struct LoRaLivePacket {
   uint8_t type = 0x01;
-  int32_t lat_scaled;       
-  int32_t lon_scaled;       
-  uint8_t speed_kph;        
-  uint8_t sats;             
-  uint8_t status_flags;     
+  int32_t lat_scaled;        
+  int32_t lon_scaled;        
+  uint8_t speed_kph;          
+  uint8_t sats;               
+  uint8_t status_flags;       
 } __attribute__((packed));
 
 struct LoRaSummaryPacket {
   uint8_t type = 0x02;
-  uint16_t max_speed_x10;   
-  uint16_t max_g_x100;      
-  uint32_t run_time_ms;     
-  int32_t lat_end;          
-  int32_t lon_end;          
+  uint16_t max_speed_x10;    
+  uint16_t max_g_x100;        
+  uint32_t run_time_ms;       
+  int32_t lat_end;           
+  int32_t lon_end;           
 } __attribute__((packed));
 
 unsigned long lastLoRaUpdate = 0;
@@ -246,10 +246,10 @@ struct CompactTelemetryPacket {
   float gforce_lat;
   float gforce_lon;
   uint8_t sats;
-  uint8_t flags;            
+  uint8_t flags;             
   uint32_t date;
   uint32_t time;
-  int16_t temp_c_x10;       
+  int16_t temp_c_x10;        
   uint16_t hdop_x10;        // NEW: Add HDOP
   
   uint8_t crc;              // CRC-8 of payload
@@ -286,11 +286,11 @@ bool manualTempOverride = false;  // NEW: Track manual override
 // GPS QUALITY VALIDATION SYSTEM
 // =================================================================
 enum GPSQuality { 
-  GPS_NO_FIX,       
-  GPS_POOR,         
-  GPS_ACCEPTABLE,   
-  GPS_GOOD,         
-  GPS_EXCELLENT     
+  GPS_NO_FIX,        
+  GPS_POOR,          
+  GPS_ACCEPTABLE,    
+  GPS_GOOD,          
+  GPS_EXCELLENT      
 };
 
 struct GPSValidation {
@@ -340,8 +340,8 @@ struct ValidationStats {
   uint32_t speedViolations = 0;
   uint32_t gForceViolations = 0;
   uint32_t gpsCoordViolations = 0;
-  uint32_t crcFailures = 0;         // NEW
-  uint32_t headerFailures = 0;      // NEW
+  uint32_t crcFailures = 0;          // NEW
+  uint32_t headerFailures = 0;       // NEW
   
   uint32_t getTotalViolations() const {
     return speedViolations + gForceViolations + gpsCoordViolations + crcFailures + headerFailures;
@@ -373,7 +373,7 @@ struct I2CAsyncContext {
   CompactTelemetryPacket tempPacket;  // Changed to packet
   
   static constexpr uint32_t SEC_RESPONSE_TIME_US = 2000;  
-  static constexpr uint32_t TIMEOUT_US = 200000;            
+  static constexpr uint32_t TIMEOUT_US = 200000;             
   static constexpr uint8_t MAX_RETRIES = 3;
 };
 I2CAsyncContext i2cContext;
@@ -451,15 +451,15 @@ struct BatteryState {
   float voltage_sim = 12.6;
   uint8_t percentage = 100;
   unsigned long last_calc_time = 0;
-   
+    
   uint16_t capacity_mah = 5000;
   uint8_t cells = 2; // NEW: Default to 2S (7.4V nominal)
-   
+    
   int motor_type = MOTOR_BRUSHLESS;
-  float motor_turns = 13.5;         
+  float motor_turns = 13.5;          
   int esc_rating_amps = 60;
   float peak_amps = 60.0;
-  float idle_amps = 0.5;            
+  float idle_amps = 0.5;             
   
   float static_load_amps = 0.40;
   float calibration_factor = 1.0;
@@ -559,6 +559,7 @@ unsigned long readSteeringPwmSafe() {
   return value;
 }
 
+
 // =================================================================
 // RC CALIBRATION SYSTEM
 // =================================================================
@@ -569,6 +570,7 @@ unsigned long throttleMax = 1900;
 unsigned long calibrationStartTime = 0;
 bool calibrationMode = true;
 
+// Steering calibration values
 unsigned long steeringMinPwm = 1100;
 unsigned long steeringMaxPwm = 1900;
 unsigned long steeringCenterPwm = 1500;
@@ -577,12 +579,26 @@ float steeringAngleCenter = 0.0;
 float steeringAngleMax = 30.0;
 bool steeringReversed = false;
 
+// Calibration state machine
 enum CalState { IDLE, WAIT_LEFT, WAIT_CENTER, WAIT_RIGHT };
 CalState steeringCalState = IDLE;
+
+// Temporary calibration storage
 unsigned long tempCalMinPwm, tempCalCenterPwm, tempCalMaxPwm;
 float tempCalAngleMin, tempCalAngleCenter, tempCalAngleMax;
-unsigned long calStateStartTime = 0;  // NEW: Timeout tracking
 
+// Calibration state tracking
+unsigned long calStateStartTime = 0;
+unsigned long calStableStartTime = 0;
+unsigned long calLastPwmValue = 0;
+bool calDataStable = false;
+
+// Calibration constants
+const unsigned long CAL_STEP_TIMEOUT = 30000;       // 30s timeout per step
+const unsigned long CAL_DEBOUNCE_TIME = 1000;       // 1s stability required
+const unsigned long CAL_PWM_TOLERANCE = 20;         // ±20us tolerance
+
+// PWM validation limits
 #define PWM_MIN_VALID 800
 #define PWM_MAX_VALID 2200
 #define PWM_DEBOUNCE_TIME 500
@@ -1085,6 +1101,192 @@ void setup() {
 }
 
 // =================================================================
+// CALIBRATION TIMEOUT MONITOR
+// =================================================================
+void checkCalibrationTimeout() {
+  if (steeringCalState == IDLE) return;
+  
+  unsigned long now = millis();
+  
+  if (now - calStateStartTime > CAL_STEP_TIMEOUT) {
+    log_m("CAL", "⚠️ Step timeout - reverting to defaults");
+    steeringCalState = IDLE;
+    calDataStable = false;
+    sendCalStep("Timeout - calibration cancelled", "var(--error)", true);
+    loadSteeringCalibration();
+  }
+}
+
+// =================================================================
+// CALIBRATION VALIDATION
+// =================================================================
+bool validateCalibrationData(unsigned long minPwm, unsigned long centerPwm, unsigned long maxPwm) {
+  if (minPwm < PWM_MIN_VALID || minPwm > PWM_MAX_VALID) {
+    log_m("CAL", "Min PWM out of range: " + String(minPwm));
+    return false;
+  }
+  
+  if (centerPwm < PWM_MIN_VALID || centerPwm > PWM_MAX_VALID) {
+    log_m("CAL", "Center PWM out of range: " + String(centerPwm));
+    return false;
+  }
+  
+  if (maxPwm < PWM_MIN_VALID || maxPwm > PWM_MAX_VALID) {
+    log_m("CAL", "Max PWM out of range: " + String(maxPwm));
+    return false;
+  }
+  
+  if (minPwm < maxPwm) {
+    if (!(minPwm < centerPwm && centerPwm < maxPwm)) {
+      log_m("CAL", "Invalid ordering: " + String(minPwm) + " < " + 
+            String(centerPwm) + " < " + String(maxPwm) + " failed");
+      return false;
+    }
+    
+    if ((centerPwm - minPwm) < 200 || (maxPwm - centerPwm) < 200) {
+      log_m("CAL", "Insufficient range - need at least 200us per side");
+      return false;
+    }
+  } else {
+    if (!(maxPwm < centerPwm && centerPwm < minPwm)) {
+      log_m("CAL", "Invalid ordering (reversed): " + String(maxPwm) + " < " + 
+            String(centerPwm) + " < " + String(minPwm) + " failed");
+      return false;
+    }
+    
+    if ((centerPwm - maxPwm) < 200 || (minPwm - centerPwm) < 200) {
+      log_m("CAL", "Insufficient range - need at least 200us per side");
+      return false;
+    }
+  }
+  
+  return true;
+}
+
+// =================================================================
+// CALIBRATION INITIALIZATION
+// =================================================================
+void handleCalibrationStart(float angleMin, float angleCenter, float angleMax, bool reversed) {
+  steeringCalState = WAIT_LEFT;
+  calStateStartTime = millis();
+  calStableStartTime = millis();
+  calLastPwmValue = 0;
+  calDataStable = false;
+  
+  tempCalAngleMin = angleMin;
+  tempCalAngleCenter = angleCenter;
+  tempCalAngleMax = angleMax;
+  steeringReversed = reversed;
+  
+  log_m("CAL", "Starting steering calibration");
+  log_m("CAL", "Angles: " + String(angleMin) + "° / " + String(angleCenter) + 
+        "° / " + String(angleMax) + "°");
+  log_m("CAL", "Reversed: " + String(reversed));
+  
+  sendCalStep("Turn steering full LEFT and HOLD...", "var(--info)");
+}
+
+// =================================================================
+// CALIBRATION STATE MACHINE
+// =================================================================
+void processSteeringCalibration(unsigned long currentPwm) {
+  if (steeringCalState == IDLE) return;
+  
+  unsigned long now = millis();
+  
+  // Check if PWM has changed significantly
+  if (abs((long)currentPwm - (long)calLastPwmValue) > CAL_PWM_TOLERANCE) {
+    // PWM changed - reset stability tracking
+    calDataStable = false;
+    calStableStartTime = now;
+    calLastPwmValue = currentPwm;
+    
+    // Provide feedback that we're waiting for stable input
+    static unsigned long lastFeedback = 0;
+    if (now - lastFeedback > 2000) {
+      String stateMsg;
+      switch(steeringCalState) {
+        case WAIT_LEFT:   stateMsg = "Hold full LEFT steady..."; break;
+        case WAIT_CENTER: stateMsg = "Hold CENTER steady..."; break;
+        case WAIT_RIGHT:  stateMsg = "Hold full RIGHT steady..."; break;
+        default: return;
+      }
+      sendCalStep(stateMsg, "var(--warning)");
+      lastFeedback = now;
+    }
+    return;
+  }
+  
+  // PWM is stable - check if we've held it long enough
+  if (!calDataStable) {
+    if (now - calStableStartTime >= CAL_DEBOUNCE_TIME) {
+      calDataStable = true;
+      log_m("CAL", "Position stable: " + String(currentPwm) + "us");
+    } else {
+      return;
+    }
+  }
+  
+  // We have stable data - advance to next state
+  switch(steeringCalState) {
+    case WAIT_LEFT:
+      tempCalMinPwm = currentPwm;
+      log_m("CAL", "Left captured: " + String(tempCalMinPwm) + "us");
+      
+      steeringCalState = WAIT_CENTER;
+      calStateStartTime = millis();
+      calDataStable = false;
+      calStableStartTime = millis();
+      calLastPwmValue = currentPwm;
+      
+      sendCalStep("✓ Left OK! Now CENTER and hold...", "var(--success)");
+      break;
+      
+    case WAIT_CENTER:
+      tempCalCenterPwm = currentPwm;
+      log_m("CAL", "Center captured: " + String(tempCalCenterPwm) + "us");
+      
+      steeringCalState = WAIT_RIGHT;
+      calStateStartTime = millis();
+      calDataStable = false;
+      calStableStartTime = millis();
+      calLastPwmValue = currentPwm;
+      
+      sendCalStep("✓ Center OK! Now full RIGHT and hold...", "var(--success)");
+      break;
+      
+    case WAIT_RIGHT:
+      tempCalMaxPwm = currentPwm;
+      log_m("CAL", "Right captured: " + String(tempCalMaxPwm) + "us");
+      
+      if (!validateCalibrationData(tempCalMinPwm, tempCalCenterPwm, tempCalMaxPwm)) {
+        log_m("CAL", "❌ Validation failed - calibration rejected");
+        steeringCalState = IDLE;
+        calDataStable = false;
+        sendCalStep("Invalid calibration - check connections", "var(--error)", true);
+        return;
+      }
+      
+      saveSteeringCalibration(tempCalMinPwm, tempCalCenterPwm, tempCalMaxPwm, 
+                              tempCalAngleMin, tempCalAngleCenter, tempCalAngleMax, 
+                              steeringReversed);
+      loadSteeringCalibration();
+      
+      steeringCalState = IDLE;
+      calDataStable = false;
+      
+      sendCalStep("✓ Calibration Complete!", "var(--success)", true);
+      log_m("CAL", "Successfully calibrated: L=" + String(tempCalMinPwm) + 
+            " C=" + String(tempCalCenterPwm) + " R=" + String(tempCalMaxPwm));
+      break;
+      
+    default:
+      steeringCalState = IDLE;
+      calDataStable = false;
+  }
+}
+
+// =================================================================
 // MAIN LOOP
 // =================================================================
 void loop() {
@@ -1102,6 +1304,7 @@ void loop() {
   }
   
   M5.update();
+  checkCalibrationTimeout();  // Check cal timeout independent of PWM
   updateSystemStatus();
   updateRCInputs();
   updateBatterySimulation();
@@ -1228,7 +1431,7 @@ void updateBatterySimulation() {
   // Voltage sag simulation (simplified resistance model)
   float v_sag = battery.current_amps * 0.02; 
   battery.voltage_sim = v_rest - v_sag;
-   
+    
   battery.last_calc_time = now;
 }
 
@@ -1410,11 +1613,11 @@ void handleSerialCommands() {
     else if (cmd.equalsIgnoreCase("I2C_STATS")) {
       log_m("I2C", "========== I2C STATISTICS ==========");
       log_m("I2C", "Total Attempts: " + String(i2cStats.totalAttempts));
-      log_m("I2C", "Successful:     " + String(i2cStats.successfulReads));
-      log_m("I2C", "Timeouts:       " + String(i2cStats.timeouts));
+      log_m("I2C", "Successful:      " + String(i2cStats.successfulReads));
+      log_m("I2C", "Timeouts:        " + String(i2cStats.timeouts));
       log_m("I2C", "Partial Reads:  " + String(i2cStats.partialReads));
-      log_m("I2C", "CRC Errors:     " + String(i2cStats.crcErrors));
-      log_m("I2C", "Success Rate:   " + String(i2cStats.getSuccessRate(), 1) + "%");
+      log_m("I2C", "CRC Errors:      " + String(i2cStats.crcErrors));
+      log_m("I2C", "Success Rate:    " + String(i2cStats.getSuccessRate(), 1) + "%");
       log_m("I2C", "====================================");
     }
     
@@ -1425,9 +1628,9 @@ void handleSerialCommands() {
       log_m("VAL", "Speed Violations:  " + String(validationStats.speedViolations));
       log_m("VAL", "G-Force Violations:" + String(validationStats.gForceViolations));
       log_m("VAL", "GPS Violations:    " + String(validationStats.gpsCoordViolations));
-      log_m("VAL", "CRC Failures:      " + String(validationStats.crcFailures));
-      log_m("VAL", "Header Failures:   " + String(validationStats.headerFailures));
-      log_m("VAL", "Validation Rate:   " + String(validationStats.getValidationRate(), 1) + "%");
+      log_m("VAL", "CRC Failures:       " + String(validationStats.crcFailures));
+      log_m("VAL", "Header Failures:    " + String(validationStats.headerFailures));
+      log_m("VAL", "Validation Rate:    " + String(validationStats.getValidationRate(), 1) + "%");
       log_m("VAL", "======================================");
     }
   }
@@ -2044,13 +2247,12 @@ void handleWebCommand(const char* json) {
     ws.textAll(json);
   }
   else if (strcmp(command, "startSteeringCal") == 0) {
-    steeringCalState = WAIT_LEFT;
-    calStateStartTime = millis();  // Start timeout
-    tempCalAngleMin = wsCmdDoc["minAngle"] | -30.0f;
-    tempCalAngleCenter = wsCmdDoc["centerAngle"] | 0.0f;
-    tempCalAngleMax = wsCmdDoc["maxAngle"] | 30.0f;
-    steeringReversed = wsCmdDoc["reversed"] | false;
-    sendCalStep("Turn full LEFT and click again...", "var(--warning)");
+    float minAngle = wsCmdDoc["minAngle"] | -30.0f;
+    float centerAngle = wsCmdDoc["centerAngle"] | 0.0f;
+    float maxAngle = wsCmdDoc["maxAngle"] | 30.0f;
+    bool reversed = wsCmdDoc["reversed"] | false;
+    
+    handleCalibrationStart(minAngle, centerAngle, maxAngle, reversed);
   } 
   else if (strcmp(command, "switchMode") == 0) {
     int newModeInt = wsCmdDoc["mode"] | -1;
@@ -2441,14 +2643,7 @@ void updateRCInputs() {
     
     // ENHANCED: Calibration with timeout
     if (steeringCalState != IDLE) {
-      // Check timeout
-      if (now - calStateStartTime > CALIBRATION_TIMEOUT) {
-        log_m("CAL", "Calibration timeout - reverting to defaults");
-        steeringCalState = IDLE;
-        sendCalStep("Timeout - using defaults", "var(--error)", true);
-      } else {
-        processSteeringCalibration(currentSteeringPwm);
-      }
+      processSteeringCalibration(currentSteeringPwm);
     }
     
     steeringAngleDeg = calculateSteeringAngle(currentSteeringPwm);
@@ -2496,39 +2691,6 @@ void sendCalStep(String message, String color, bool done) {
   String json;
   serializeJson(doc, json);
   ws.textAll(json);
-}
-
-void processSteeringCalibration(unsigned long currentPwm) {
-  if (steeringCalState == IDLE) return;
-  
-  switch(steeringCalState) {
-    case WAIT_LEFT:
-      tempCalMinPwm = currentPwm; 
-      steeringCalState = WAIT_CENTER;
-      calStateStartTime = millis();  // Reset timeout
-      sendCalStep("OK! Now CENTER", "var(--info)");
-      break;
-      
-    case WAIT_CENTER:
-      tempCalCenterPwm = currentPwm; 
-      steeringCalState = WAIT_RIGHT;
-      calStateStartTime = millis();  // Reset timeout
-      sendCalStep("OK! Now full RIGHT", "var(--info)");
-      break;
-      
-    case WAIT_RIGHT:
-      tempCalMaxPwm = currentPwm; 
-      saveSteeringCalibration(tempCalMinPwm, tempCalCenterPwm, tempCalMaxPwm, 
-                              tempCalAngleMin, tempCalAngleCenter, tempCalAngleMax, 
-                              steeringReversed);
-      loadSteeringCalibration();
-      steeringCalState = IDLE;
-      sendCalStep("Complete!", "var(--success)", true);
-      break;
-      
-    default:
-      steeringCalState = IDLE;
-  }
 }
 
 void handleButtonInput() {
